@@ -1,5 +1,5 @@
 var CACHE_NAME = 'snapdrop-cache-v1.043';
-var path = self.location.pathname;
+var path = self.location.pathname.substring(0, pathname.lastIndexOf('/'));
 console.log('path: ' + path);
 var urlsToCache = [
   path,
