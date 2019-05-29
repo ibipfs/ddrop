@@ -1,5 +1,6 @@
 var CACHE_NAME = 'snapdrop-cache-v1.043';
-var path = (self.location.pathname === '/') ? '' : self.location.pathname
+var path = self.location.pathname;
+console.log('path: ' + path);
 var urlsToCache = [
   path,
   path + 'styles.css',
@@ -8,6 +9,8 @@ var urlsToCache = [
   path + 'sounds/blop.mp3',
   path + 'images/favicon-96x96.png'
 ];
+
+console.log('urlsToCache: ' + urlsToCache);
 
 self.addEventListener('install', function(event) {
   // Perform install steps
