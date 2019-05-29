@@ -1,6 +1,8 @@
-# Snapdrop 
+# dDrop: Airdrop Web Distributed
 
-[Snapdrop](https://snapdrop.net): local file sharing in your browser - inspired by Apple's Airdrop.
+> Sharing resources in a distributed and meaningful way.
+
+_**Based on [Snapdrop](https://snapdrop.net): local file sharing in your browser - inspired by Apple's Airdrop.**_
 
 #### Snapdrop (Version 2) is built with the following awesome technologies:
 * Vanilla HTML5 / ES6 / CSS3  
