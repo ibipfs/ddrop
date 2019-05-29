@@ -1,6 +1,8 @@
 {
     "name": "dDrop",
     "short_name": "dDrop",
+    "Method": "GET",
+    "Enctype": "multipart/form-data",
     "icons": [{
         "src": "images/favicon-96x96.png",
         "sizes": "96x96",
