@@ -516,7 +516,9 @@ document.copy = text => {
 
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
+    let path = (window.location.pathname === '/') ? '' : window.location.pathname
+
+    navigator.serviceWorker.register(path + '/service-worker.js')
         .then(serviceWorker => {
             console.log('Service Worker registered');
             window.serviceWorker = serviceWorker
