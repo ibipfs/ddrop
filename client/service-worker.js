@@ -1,5 +1,5 @@
 var CACHE_NAME = 'snapdrop-cache-v1.043';
-var path = (window.location.pathname === '/') ? '' : window.location.pathname
+var path = (self.location.pathname === '/') ? '' : self.location.pathname
 var urlsToCache = [
   path,
   path + 'styles.css',
