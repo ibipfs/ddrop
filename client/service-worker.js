@@ -2,12 +2,12 @@ var CACHE_NAME = 'snapdrop-cache-v1.043';
 var path = self.location.pathname.substring(0, self.location.pathname.lastIndexOf('/'));
 console.log('path: ' + path);
 var urlsToCache = [
-  path,
-  path + 'styles.css',
-  path + 'scripts/network.js',
-  path + 'scripts/ui.js',
-  path + 'sounds/blop.mp3',
-  path + 'images/favicon-96x96.png'
+  path + '/',
+  path + '/styles.css',
+  path + '/scripts/network.js',
+  path + '/scripts/ui.js',
+  path + '/sounds/blop.mp3',
+  path + '/images/favicon-96x96.png'
 ];
 
 console.log('urlsToCache: ' + urlsToCache);
