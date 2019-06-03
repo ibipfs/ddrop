@@ -8,7 +8,9 @@ class SnapdropServer {
         this._wss.on('connection', (socket, request) => this._onConnection(new Peer(socket, request)));
         this._wss.on('headers', (headers, response) => this._onHeaders(headers, response));
 
-        this._rooms = {};
+        this._rooms = {
+            "un": {}
+        };
 
         console.log('Snapdrop is running on port', port);
     }
@@ -29,6 +31,9 @@ class SnapdropServer {
         message = JSON.parse(message);
 
         switch (message.type) {
+            case 'net-fun':
+                this._toggleFun(sender, message);
+                break;
             case 'disconnect':
                 this._leaveRoom(sender);
                 break;
@@ -38,6 +43,17 @@ class SnapdropServer {
         }
 
         // relay message to recipient
+        if (message.to && this._rooms['un']) { // Room['un']
+            const recipient = this._rooms['un'][message.to];
+            if (recipient) {
+                let msg = message;
+                delete msg.to;
+                // add sender id
+                msg.sender = sender.id;
+                this._send(recipient, msg);
+            }
+        }
+
         if (message.to && this._rooms[sender.ip]) {
             const recipientId = message.to; // TODO: sanitize
             const recipient = this._rooms[sender.ip][recipientId];
@@ -46,6 +62,94 @@ class SnapdropServer {
             message.sender = sender.id;
             this._send(recipient, message);
             return;
+        }
+    }
+
+    _toggleFun(peer, message) {
+        if (!message || !message.toggle ) return;
+
+        if (message.toggle === 'on') {
+            this._joinFun(peer);
+        } else if (message.toggle === 'off') {
+            this._leaveFun(peer);
+        }
+    }
+
+    _joinFun(peer) {
+        // if room doesn't exist, create it
+        if (!this._rooms['un']) {
+            this._rooms['un'] = {};
+        }
+
+        // notify all other peers
+        for (const otherPeerId in this._rooms['un']) {
+            const otherPeer = this._rooms['un'][otherPeerId];
+            this._send(otherPeer, {
+                type: 'peer-joined',
+                peer: peer.getInfo()
+            });
+        }
+
+        // notify peer about the other peers
+        const otherPeers = [];
+        for (const otherPeerId in this._rooms['un']) {
+            otherPeers.push(this._rooms['un'][otherPeerId].getInfo());
+        }
+
+        this._send(peer, {
+            type: 'peers',
+            peers: otherPeers
+        });
+
+        // add peer to room
+        this._rooms['un'][peer.id] = peer;
+    }
+
+    _leaveFun(peer) {
+        if (!this._rooms['un'] || !this._rooms['un'][peer.id]) return;
+
+        // delete the peer
+        delete this._rooms['un'][peer.id];
+
+        // notify all other peers
+        for (const otherPeerId in this._rooms['un']) {
+            const otherPeer = this._rooms['un'][otherPeerId];
+            this._send(otherPeer, { type: 'peer-left', peerId: peer.id });
+        }
+    }
+
+    _switchNet(peer, message) {
+        if (!message || !message.net ) return;
+
+        switch (message.net) {
+            case 'fun': {
+                const peer_ip = peer.ip;
+
+                peer.ip = 'un';
+
+                this._joinRoom(peer);
+                this._keepAlive(peer);
+
+                if (this._rooms[peer_ip] && this._rooms[peer_ip][peer.id]) {
+                    peer.ip = peer_ip;
+
+                    this._leaveRoom(peer);
+                }
+
+                break;
+            };
+            case 'lan': {
+                this._joinRoom(peer);
+                this._keepAlive(peer);
+
+                if (this._rooms['un'][peer.id]) {
+                    peer.ip = 'un';
+
+                    this._leaveRoom(peer);
+                }
+
+                break;
+            };
         }
     }
 

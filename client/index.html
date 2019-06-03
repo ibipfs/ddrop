@@ -53,7 +53,7 @@
     <!-- Peers -->
     <x-peers class="center"></x-peers>
     <x-no-peers>
-        <h2>Open dDrop on other devices to send files.</h2>
+        <h2>Open dDrop on peers to send files.</h2>
     </x-no-peers>
     <x-instructions desktop="Click to send files or right click to send a message." mobile="Tap to send files or long tap to send a message."></x-instructions>
     <!-- Footer -->
@@ -61,8 +61,19 @@
         <svg class="icon logo">
             <use xlink:href="#wifi-tethering" />
         </svg>
-        <div>The easiest way to transfer data across devices.</div>
-        <div class="font-body2">Allow me to be discovered by: Everyone in this network.</div>
+        <fieldset>
+            <legend>Allow me to be discovered by:</legend>
+            <ul>
+                <li>
+                    <label for="lan">Local Area Network</label>
+                    <input type="checkbox" id="net-lan" name="lan" value="lan" checked disabled>
+                </li>
+                <li>
+                    <label for="fun">The Whole Universe</label>
+                    <input type="checkbox" id="net-fun" name="fun" value="fun">
+                </li>
+            </ul>
+        </fieldset>
     </footer>
     <!-- Receive Dialog -->
     <x-dialog id="receiveDialog">
@@ -84,7 +95,7 @@
             <x-background class="full center">
                 <x-paper shadow="2">
                     <h3>Send a Message</h3>
-                    <input id="textInput" placeholder="Send a message" autocomplete="off" autofocus>
+                    <input id="textInput" type="text" placeholder="Send a message" autocomplete="off" autofocus>
                     <div class="row-reverse">
                         <button class="button" type="submit" close>Send</button>
                         <a class="button" close>Cancel</a>

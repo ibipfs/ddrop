@@ -5,6 +5,46 @@ window.isDownloadSupported = (typeof document.createElement('a').download !== 'u
 window.isProductionEnvironment = !window.location.host.startsWith('localhost');
 window.iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
+class ToggleFun {
+    constructor(server) {
+        this._server = server;
+        this.$net = $('net-fun');
+        this.$net.addEventListener('change', e => this._send(e));
+    }
+
+    _send(e) {
+        const message = {
+            type: "net-fun",
+            toggle: e.target.checked ? 'on' : 'off'
+        };
+
+        e.preventDefault();
+        if (this._server && 'function' === typeof this._server.send) {
+            this._server.send(message);
+        }
+    }
+}
+
+class SwitchNet {
+    constructor(server) {
+        this._server = server;
+        this.$net = $('net-select');
+        this.$net.addEventListener('change', e => this._send(e));
+    }
+
+    _send(e) {
+        const message = {
+            type: "switch-net",
+            net: this.$net.value
+        };
+
+        e.preventDefault();
+        if (this._server && 'function' === typeof this._server.send) {
+            this._server.send(message);
+        }
+    }
+}
+
 class PeersUI {
 
     constructor() {
@@ -264,7 +304,6 @@ class ReceiveDialog extends Dialog {
     }
 }
 
-
 class SendTextDialog extends Dialog {
     constructor() {
         super('sendTextDialog');
@@ -470,6 +509,9 @@ class Snapdrop {
         const peers = new PeersManager(server);
         const peersUI = new PeersUI();
         Events.on('load', e => {
+            const toggleFun = new ToggleFun(server);
+            //const switchNet = new SwitchNet(server);
+
             const receiveDialog = new ReceiveDialog();
             const sendTextDialog = new SendTextDialog();
             const receiveTextDialog = new ReceiveTextDialog();

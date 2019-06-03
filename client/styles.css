@@ -450,7 +450,7 @@ button::-moz-focus-inner {
 
 /* Text Input */
 
-input {
+input[type="text"]  {
     width: 100%;
     box-sizing: border-box;
     border: none;
