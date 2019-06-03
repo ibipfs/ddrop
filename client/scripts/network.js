@@ -509,7 +509,6 @@ RTCPeer.config = {
   'iceServers': [
     {
         urls: [
-          'stun:stun.l.google.com:19302',
           'stun:stun.ekiga.net',
           'stun:stun.fwdnet.net',
           'stun:stun.ideasip.com',
