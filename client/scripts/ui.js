@@ -29,7 +29,22 @@ class SwitchNet {
     constructor(server) {
         this._server = server;
         this.$net = $('net-select');
-        this.$net.addEventListener('change', e => this._send(e));
+        this.$net.addEventListener('change', e => this._switch(e));
+
+        Events.on('net-switched', e => {
+            if (e.detail.net === this.$net.value) {
+                this.$net.disabled = false;
+            } else {
+                alert('Error switching net!!!');
+                this.$net.disabled = false;
+            }
+        });
+    }
+
+    _switch(e) {
+        this.$net.disabled = true;
+
+        this._send(e);
     }
 
     _send(e) {
@@ -509,8 +524,8 @@ class Snapdrop {
         const peers = new PeersManager(server);
         const peersUI = new PeersUI();
         Events.on('load', e => {
-            const toggleFun = new ToggleFun(server);
-            //const switchNet = new SwitchNet(server);
+            //const toggleFun = new ToggleFun(server);
+            const switchNet = new SwitchNet(server);
 
             const receiveDialog = new ReceiveDialog();
             const sendTextDialog = new SendTextDialog();

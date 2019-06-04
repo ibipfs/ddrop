@@ -26,6 +26,9 @@ class ServerConnection {
         msg = JSON.parse(msg);
         console.log('WS:', msg);
         switch (msg.type) {
+            case 'net-switched':
+                Events.fire('net-switched', msg);
+                break;
             case 'peers':
                 Events.fire('peers', msg.peers);
                 break;
@@ -42,7 +45,7 @@ class ServerConnection {
                 this.send({ type: 'pong' });
                 break;
             default:
-                console.error('WS: unkown message type', msg);
+                console.error('WS: unknown message type', msg);
         }
     }
 

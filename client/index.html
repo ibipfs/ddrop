@@ -61,7 +61,14 @@
         <svg class="icon logo">
             <use xlink:href="#wifi-tethering" />
         </svg>
-        <fieldset>
+        <div class="font-body2">
+            Allow me to be discovered by:
+            <select id="net-select" name="net">
+                <option value="lan">Local Area Network</option>
+                <option value="fun">The Whole Universe</option>
+            </select>
+        </div>
+        <!-- <fieldset>
             <legend>Allow me to be discovered by:</legend>
             <ul>
                 <li>
@@ -73,7 +80,7 @@
                     <input type="checkbox" id="net-fun" name="fun" value="fun">
                 </li>
             </ul>
-        </fieldset>
+        </fieldset> -->
     </footer>
     <!-- Receive Dialog -->
     <x-dialog id="receiveDialog">

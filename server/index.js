@@ -31,8 +31,8 @@ class SnapdropServer {
         message = JSON.parse(message);
 
         switch (message.type) {
-            case 'net-fun':
-                this._toggleFun(sender, message);
+            case 'switch-net':
+                this._switchNet(sender, message);
                 break;
             case 'disconnect':
                 this._leaveRoom(sender);
@@ -43,17 +43,6 @@ class SnapdropServer {
         }
 
         // relay message to recipient
-        if (message.to && this._rooms['un']) { // Room['un']
-            const recipient = this._rooms['un'][message.to];
-            if (recipient) {
-                let msg = message;
-                delete msg.to;
-                // add sender id
-                msg.sender = sender.id;
-                this._send(recipient, msg);
-            }
-        }
-
         if (message.to && this._rooms[sender.ip]) {
             const recipientId = message.to; // TODO: sanitize
             const recipient = this._rooms[sender.ip][recipientId];
@@ -65,7 +54,7 @@ class SnapdropServer {
         }
     }
 
-    _toggleFun(peer, message) {
+/*    _toggleFun(peer, message) {
         if (!message || !message.toggle ) return;
 
         if (message.toggle === 'on') {
@@ -116,52 +105,32 @@ class SnapdropServer {
             const otherPeer = this._rooms['un'][otherPeerId];
             this._send(otherPeer, { type: 'peer-left', peerId: peer.id });
         }
-    }
+    }*/
 
     _switchNet(peer, message) {
         if (!message || !message.net ) return;
 
-        switch (message.net) {
-            case 'fun': {
-                const peer_ip = peer.ip;
+        peer.net = message.net;
 
-                peer.ip = 'un';
+        this._leaveRoom(peer);
 
-                this._joinRoom(peer);
-                this._keepAlive(peer);
-
-                if (this._rooms[peer_ip] && this._rooms[peer_ip][peer.id]) {
-                    peer.ip = peer_ip;
-
-                    this._leaveRoom(peer);
-                }
-
-                break;
-            };
-            case 'lan': {
-                this._joinRoom(peer);
-                this._keepAlive(peer);
-
-                if (this._rooms['un'][peer.id]) {
-                    peer.ip = 'un';
-
-                    this._leaveRoom(peer);
-                }
-
-                break;
-            };
-        }
+        setTimeout(() => {
+            this._joinRoom(peer);
+            this._keepAlive(peer);
+        }, 3000);
     }
 
     _joinRoom(peer) {
+        const room = (peer.net === 'fun') ? 'un' : peer.id;
+
         // if room doesn't exist, create it
-        if (!this._rooms[peer.ip]) {
-            this._rooms[peer.ip] = {};
+        if (!this._rooms[room]) {
+            this._rooms[room] = {};
         }
 
         // notify all other peers
-        for (const otherPeerId in this._rooms[peer.ip]) {
-            const otherPeer = this._rooms[peer.ip][otherPeerId];
+        for (const otherPeerId in this._rooms[room]) {
+            const otherPeer = this._rooms[room][otherPeerId];
             this._send(otherPeer, {
                 type: 'peer-joined',
                 peer: peer.getInfo()
@@ -170,8 +139,8 @@ class SnapdropServer {
 
         // notify peer about the other peers
         const otherPeers = [];
-        for (const otherPeerId in this._rooms[peer.ip]) {
-            otherPeers.push(this._rooms[peer.ip][otherPeerId].getInfo());
+        for (const otherPeerId in this._rooms[room]) {
+            otherPeers.push(this._rooms[room][otherPeerId].getInfo());
         }
 
         this._send(peer, {
@@ -180,24 +149,38 @@ class SnapdropServer {
         });
 
         // add peer to room
-        this._rooms[peer.ip][peer.id] = peer;
+        this._rooms[room][peer.id] = peer;
+
+        if (peer.net) {
+            this._send(peer, {
+                type: 'net-switched',
+                net: peer.net
+            });
+        }
     }
 
     _leaveRoom(peer) {
-        if (!this._rooms[peer.ip] || !this._rooms[peer.ip][peer.id]) return;
-        this._cancelKeepAlive(this._rooms[peer.ip][peer.id]);
+        const room = (peer.net !== 'fun') ? 'un' : peer.id;
 
+        if (!this._rooms[room] || !this._rooms[room][peer.id]) return;
+        
+        this._cancelKeepAlive(this._rooms[room][peer.id]);
+        
         // delete the peer
-        delete this._rooms[peer.ip][peer.id];
+        delete this._rooms[room][peer.id];
 
-        peer.socket.terminate();
+        // terminate peer socket if not switching network
+        if (!peer.net) {
+            peer.socket.terminate();
+        }
+
         //if room is empty, delete the room
-        if (!Object.keys(this._rooms[peer.ip]).length) {
-            delete this._rooms[peer.ip];
+        if (!Object.keys(this._rooms[room]).length) {
+            delete this._rooms[room];
         } else {
             // notify all other peers
-            for (const otherPeerId in this._rooms[peer.ip]) {
-                const otherPeer = this._rooms[peer.ip][otherPeerId];
+            for (const otherPeerId in this._rooms[room]) {
+                const otherPeer = this._rooms[room][otherPeerId];
                 this._send(otherPeer, { type: 'peer-left', peerId: peer.id });
             }
         }
