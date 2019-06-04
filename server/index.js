@@ -28,10 +28,6 @@ class SnapdropServer {
     }
 
     _onMessage(sender, message) {
-        console.log('_onMessage:');
-        console.log('sender: ' + sender);
-        console.log('message: ' + JSON.stringify(message));
-
         message = JSON.parse(message);
 
         switch (message.type) {
@@ -47,7 +43,7 @@ class SnapdropServer {
         }
 
         // relay message to recipient
-        const room = message.net ? message.net : sender.ip;
+        const room = (sender.net === 'fun') ? 'un' : sender.ip;
 
         if (room && message.to && this._rooms[room]) {
             const recipientId = message.to; // TODO: sanitize
@@ -58,15 +54,6 @@ class SnapdropServer {
             this._send(recipient, message);
             return;
         }
-        /*if (message.to && this._rooms[sender.ip]) {
-            const recipientId = message.to; // TODO: sanitize
-            const recipient = this._rooms[sender.ip][recipientId];
-            delete message.to;
-            // add sender id
-            message.sender = sender.id;
-            this._send(recipient, message);
-            return;
-        }*/
     }
 
 /*    _toggleFun(peer, message) {
@@ -131,7 +118,7 @@ class SnapdropServer {
 
         setTimeout(() => {
             this._joinRoom(peer);
-            //peer.socket.on('message', message => this._onMessage(peer, message));
+            peer.socket.on('message', message => this._onMessage(peer, message));
             this._keepAlive(peer);
         }, 3000);
     }
@@ -161,7 +148,8 @@ class SnapdropServer {
 
         this._send(peer, {
             type: 'peers',
-            peers: otherPeers
+            peers: otherPeers,
+            net: peer.net
         });
 
         // add peer to room

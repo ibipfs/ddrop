@@ -30,7 +30,11 @@ class ServerConnection {
                 Events.fire('net-switched', msg);
                 break;
             case 'peers':
-                Events.fire('peers', msg.peers);
+                Events.fire('peers', {
+                    peers: msg.peers,
+                    net: msg.net
+                });
+                //Events.fire('peers', msg.peers);
                 break;
             case 'peer-joined':
                 Events.fire('peer-joined', msg.peer);
@@ -362,6 +366,7 @@ class PeersManager {
         this._server = serverConnection;
         Events.on('signal', e => this._onMessage(e.detail));
         Events.on('peers', e => this._onPeers(e.detail));
+        //Events.on('peers', e => this._onPeers(e.detail));
         Events.on('files-selected', e => this._onFilesSelected(e.detail));
         Events.on('send-text', e => this._onSendText(e.detail));
         Events.on('peer-left', e => this._onPeerLeft(e.detail));
@@ -374,7 +379,15 @@ class PeersManager {
         this.peers[message.sender].onServerMessage(message);
     }
 
-    _onPeers(peers) {
+    _onPeers(detail) {
+        if (detail && detail.net) {// reset peers for switching network
+            Object.keys(this.peers).forEach(peerid => {
+                delete this.peers[peerid];
+            });
+        }
+
+        const peers = detail.peers;
+
         peers.forEach(peer => {
             if (this.peers[peer.id]) {
                 this.peers[peer.id].refresh();
@@ -397,9 +410,6 @@ class PeersManager {
     }
 
     _onSendText(message) {
-        console.log('_onSendText: ' + JSON.stringify(message));
-        console.log('this.peers: ' + JSON.stringify(this.peers));
-
         this.peers[message.to] && this.peers[message.to].sendText(message.text);
     }
 
