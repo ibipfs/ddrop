@@ -343,10 +343,20 @@ class SendTextDialog extends Dialog {
 
     _send(e) {
         e.preventDefault();
-        Events.fire('send-text', {
+
+        const message = {
             to: this._recipient,
             text: this.$text.value
-        });
+        };
+        const netSelect = $('net-select');
+        if (netSelect && (netSelect.value === 'fun')) {
+            message.net = 'un';
+        }
+        Events.fire('send-text', message);
+        /*Events.fire('send-text', {
+            to: this._recipient,
+            text: this.$text.value
+        });*/
     }
 }
 
