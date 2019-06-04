@@ -350,8 +350,10 @@ class SendTextDialog extends Dialog {
         };
         const netSelect = $('net-select');
         if (netSelect && (netSelect.value === 'fun')) {
+            console.log('netSelect.value: ' + netSelect.value);
             message.net = 'un';
         }
+        console.log('message: ' + JSON.stringify(message));
         Events.fire('send-text', message);
         /*Events.fire('send-text', {
             to: this._recipient,
