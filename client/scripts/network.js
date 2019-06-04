@@ -397,7 +397,7 @@ class PeersManager {
     }
 
     _onSendText(message) {
-        this.peers[message.to].sendText(message.text);
+        this.peers[message.to] && this.peers[message.to].sendText(message.text);
     }
 
     _onPeerLeft(peerId) {
