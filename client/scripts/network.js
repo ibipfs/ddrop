@@ -397,6 +397,9 @@ class PeersManager {
     }
 
     _onSendText(message) {
+        console.log('_onSendText: ' + JSON.stringify(message));
+        console.log('this.peers: ' + JSON.stringify(this.peers));
+
         this.peers[message.to] && this.peers[message.to].sendText(message.text);
     }
 
