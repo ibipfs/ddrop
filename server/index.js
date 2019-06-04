@@ -121,7 +121,7 @@ class SnapdropServer {
     }
 
     _joinRoom(peer) {
-        const room = (peer.net === 'fun') ? 'un' : peer.id;
+        const room = (peer.net === 'fun') ? 'un' : peer.ip;
 
         // if room doesn't exist, create it
         if (!this._rooms[room]) {
@@ -160,7 +160,7 @@ class SnapdropServer {
     }
 
     _leaveRoom(peer) {
-        const room = (peer.net !== 'fun') ? 'un' : peer.id;
+        const room = (peer.net !== 'fun') ? 'un' : peer.ip;
 
         if (!this._rooms[room] || !this._rooms[room][peer.id]) return;
         
