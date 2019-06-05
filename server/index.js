@@ -35,7 +35,8 @@ class SnapdropServer {
                 this._switchNet(sender, message);
                 break;
             case 'disconnect':
-                this._leaveRoom(sender);
+                const _room = (message.net === 'fun') ? 'un' : sender.ip;
+                this._leaveRoom(sender, _room);
                 break;
             case 'pong':
                 sender.lastBeat = Date.now();
@@ -56,75 +57,35 @@ class SnapdropServer {
         }
     }
 
-/*    _toggleFun(peer, message) {
-        if (!message || !message.toggle ) return;
-
-        if (message.toggle === 'on') {
-            this._joinFun(peer);
-        } else if (message.toggle === 'off') {
-            this._leaveFun(peer);
-        }
-    }
-
-    _joinFun(peer) {
-        // if room doesn't exist, create it
-        if (!this._rooms['un']) {
-            this._rooms['un'] = {};
-        }
-
-        // notify all other peers
-        for (const otherPeerId in this._rooms['un']) {
-            const otherPeer = this._rooms['un'][otherPeerId];
-            this._send(otherPeer, {
-                type: 'peer-joined',
-                peer: peer.getInfo()
-            });
-        }
-
-        // notify peer about the other peers
-        const otherPeers = [];
-        for (const otherPeerId in this._rooms['un']) {
-            otherPeers.push(this._rooms['un'][otherPeerId].getInfo());
-        }
-
-        this._send(peer, {
-            type: 'peers',
-            peers: otherPeers
-        });
-
-        // add peer to room
-        this._rooms['un'][peer.id] = peer;
-    }
-
-    _leaveFun(peer) {
-        if (!this._rooms['un'] || !this._rooms['un'][peer.id]) return;
-
-        // delete the peer
-        delete this._rooms['un'][peer.id];
-
-        // notify all other peers
-        for (const otherPeerId in this._rooms['un']) {
-            const otherPeer = this._rooms['un'][otherPeerId];
-            this._send(otherPeer, { type: 'peer-left', peerId: peer.id });
-        }
-    }*/
-
     _switchNet(peer, message) {
+        //console.log('_switchNet:');
+        //console.log('peer: ' + peer);
+        //console.log('message: ' + JSON.stringify(message));
+
         if (!message || !message.net ) return;
+        
+        peer.net = message.net; // `peer` is switching to the `peer.net`
 
-        peer.net = message.net;
+        const roomToLeave = (message.net === 'fun') ? peer.ip : 'un' ;
 
-        this._leaveRoom(peer);
+        this._leaveRoom(peer, roomToLeave);
+
+        const roomToJoin = (message.net === 'fun') ? 'un' : peer.ip;
 
         setTimeout(() => {
-            this._joinRoom(peer);
+            this._joinRoom(peer, roomToJoin);
             peer.socket.on('message', message => this._onMessage(peer, message));
             this._keepAlive(peer);
         }, 3000);
     }
 
-    _joinRoom(peer) {
-        const room = (peer.net === 'fun') ? 'un' : peer.ip;
+    _joinRoom(peer, _room) {
+        //console.log('_joinRoom:');
+        //console.log('peer: ' + peer);
+
+        const room = _room ? _room : peer.ip; // _room to join, or peer.ip(by default, Local Area Network)
+
+        //console.log('room: ' + room);
 
         // if room doesn't exist, create it
         if (!this._rooms[room]) {
@@ -163,8 +124,13 @@ class SnapdropServer {
         }
     }
 
-    _leaveRoom(peer) {
-        const room = (peer.net !== 'fun') ? 'un' : peer.ip;
+    _leaveRoom(peer, _room) {
+        //console.log('_leaveRoom:');
+        //console.log('peer: ' + peer);
+
+        const room = _room ? _room : ((!peer.net || peer.net === 'fun') ? peer.ip : 'un'); // explicit[_room] > peer.net > peer.ip
+        
+        //console.log('room: ' + room);
 
         if (!this._rooms[room] || !this._rooms[room][peer.id]) return;
         
@@ -192,25 +158,29 @@ class SnapdropServer {
 
     _send(peer, message) {
         if (!peer) return console.error('undefined peer');
-        if (this._wss.readyState !== this._wss.OPEN) return console.error('Socket is closed');
+        if ((this._wss.readyState !== this._wss.OPEN) || (peer.socket.readyState !== peer.socket.OPEN)) return console.error('Socket is closed');
         message = JSON.stringify(message);
         peer.socket.send(message, error => error ? console.log(error): '');
     }
 
     _keepAlive(peer) {
-        this._cancelKeepAlive(peer);
-        var timeout = 10000;
-        if (!peer.lastBeat) {
-            peer.lastBeat = Date.now();
-        }
-        if (Date.now() - peer.lastBeat > 2 * timeout) {
-            this._leaveRoom(peer);
-            return;
-        }
+        try {
+            this._cancelKeepAlive(peer);
+            var timeout = 10000;
+            if (!peer.lastBeat) {
+                peer.lastBeat = Date.now();
+            }
+            if (Date.now() - peer.lastBeat > 2 * timeout) {
+                this._leaveRoom(peer);
+                return;
+            }
 
-        this._send(peer, { type: 'ping' });
+            this._send(peer, { type: 'ping' });
 
-        peer.timerId = setTimeout(() => this._keepAlive(peer), timeout);
+            peer.timerId = setTimeout(() => this._keepAlive(peer), timeout);
+        } catch (e) {
+            console.log('Error _keepAlive: ' + e);
+        }
     }
 
     _cancelKeepAlive(peer) {

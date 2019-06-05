@@ -68,7 +68,14 @@ class ServerConnection {
     }
 
     _disconnect() {
-        this.send({ type: 'disconnect' });
+        const net = $('net-select').value;
+
+        const message = {
+            type: 'disconnect',
+            net: net
+        };
+
+        this.send(message);
         this._socket.onclose = null;
         this._socket.close();
     }

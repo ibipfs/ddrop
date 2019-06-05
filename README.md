@@ -4,6 +4,12 @@
 
 _**[Showcase](https://service.edening.net/ipfs/QmYWYACCWYQ5bwCrKEZXwMyNtAxnsQ8zNKQfSsnGqzGRF8) Based on [Snapdrop](https://snapdrop.net): local file sharing in your browser - inspired by Apple's Airdrop.**_
 
+### Forwarding
+- Distributed: Based on `IBIPFS|IPFS` // Remove `server` as much as possible, e.g. `signaling`???
+
+
+---
+
 #### Snapdrop (Version 2) is built with the following awesome technologies:
 * Vanilla HTML5 / ES6 / CSS3  
 * Progressive Web App
