@@ -1,8 +1,8 @@
 {
     "method": "GET",
     "enctype": "multipart/form-data",
-    "name": "dDrop",
-    "short_name": "dDrop",
+    "name": "iDrop",
+    "short_name": "iDrop",
     "icons": [{
         "src": "images/favicon-96x96.png",
         "sizes": "96x96",

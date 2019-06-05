@@ -1,4 +1,4 @@
-# dDrop: Airdrop Web Distributed
+# iDrop: Airdrop Web Distributed
 
 > Sharing resources in a distributed and meaningful way.
 
