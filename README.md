@@ -1,6 +1,6 @@
-# iDrop: Airdrop Web Distributed
+# iDrop: Distributed Web Airdrop
 
-> Sharing resources in a distributed and meaningful way.
+> Sharing files in a distributed and meaningful way.
 
 :whale:  _**[Showcase](https://service.edening.net/ipfs/QmYWYACCWYQ5bwCrKEZXwMyNtAxnsQ8zNKQfSsnGqzGRF8) Based on [Snapdrop](https://github.com/RobinLinus/snapdrop): local file sharing in your browser - inspired by Apple's Airdrop.**_
 
