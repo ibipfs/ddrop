@@ -6,7 +6,7 @@
 
 ### Forwarding
 
-- Distributed: Based on `IBIPFS|IPFS`
+- Distributed: Based on `IBIPFS|IPFS`  :eyes: [exchange-files-in-browser@js-ipfs](https://github.com/ipfs/js-ipfs/tree/master/examples/exchange-files-in-browser)
 
 - * `Serverless`  // Content delivery via IPFS node(s)
 - * `Resume`  // ${CID}?
